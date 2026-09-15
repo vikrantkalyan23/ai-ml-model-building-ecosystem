@@ -1,6 +1,45 @@
 # Scikit-learn (sklearn)
 
-Scikit-learn (sklearn) is one of the most important Python libraries for traditional machine learning.
+Scikit-learn is  primary toolkit for traditional machine learning, especially structured/tabular data.
+
+## Scikit-learn learning roadmap
+```
+1. ML fundamentals
+       ↓
+2. Train/Test Split
+       ↓
+3. Linear Regression
+       ↓
+4. Logistic Regression
+       ↓
+5. Decision Trees
+       ↓
+6. Random Forest
+       ↓
+7. KNN
+       ↓
+8. SVM
+       ↓
+9. K-Means
+       ↓
+10. Scaling
+       ↓
+11. Encoding
+       ↓
+12. Missing values
+       ↓
+13. Feature engineering
+       ↓
+14. Pipelines
+       ↓
+15. Cross-validation
+       ↓
+16. Hyperparameter tuning
+       ↓
+17. Model evaluation
+       ↓
+18. XGBoost
+```
 
 Scikit-learn is an open-source Python library that provides ready-to-use tools for:
 
