@@ -71,6 +71,23 @@ Agglomerative Clustering
 Gaussian Mixture Models
 ```
 
+## Best use cases for Scikit-learn
+```
+Customer churn
+House price prediction
+Fraud detection
+Credit risk
+Customer segmentation
+```
+
+## When NOT to use Scikit-learn
+```
+❌ Large image classification
+❌ Complex computer vision
+❌ LLMs
+❌ Large generative AI models
+```
+
 ## Advantages of Scikit-learn
 #### Very easy to learn
 ```
@@ -124,8 +141,59 @@ GRU
 Large Transformer
 LLM
 ```
+### Limited GPU/deep-learning capabilities
+Scikit-learn's core ecosystem is primarily CPU-oriented
+### Not an LLM framework
+For:
+```
+Llama
+Mistral
+BERT
+GPT-style models
+```
+look at PyTorch + Hugging Face.
+### Neural networks are limited
+Scikit-learn has some neural-network support such as:
+```
+MLPClassifier
+MLPRegressor
+```
+but these aren't intended to replace dedicated deep-learning frameworks.
 
+## Scikit-learn vs PyTorch
+|                   | Scikit-learn | PyTorch |
+| ----------------- | ------------ | ------- |
+| Traditional ML    | ⭐⭐⭐⭐⭐        | ⭐       |
+| Deep Learning     | ⭐            | ⭐⭐⭐⭐⭐   |
+| Neural Networks   | Limited      | ⭐⭐⭐⭐⭐   |
+| CNN               | ❌            | ✅       |
+| RNN/LSTM          | ❌            | ✅       |
+| Transformers      | ❌            | ✅       |
+| LLM               | ❌            | ⭐⭐⭐⭐⭐   |
+| Tabular ML        | ⭐⭐⭐⭐⭐        | ⭐⭐⭐     |
+| Research          | ⭐⭐⭐          | ⭐⭐⭐⭐⭐   |
+| Beginner-friendly | ⭐⭐⭐⭐⭐        | ⭐⭐⭐     |
+| GPU               | Limited      | ⭐⭐⭐⭐⭐   |
 
+## Scikit-learn vs TensorFlow/Keras
+|                   | Scikit-learn   | TensorFlow/Keras                         |
+| ----------------- | -------------- | ---------------------------------------- |
+| Main purpose      | Traditional ML | Deep Learning                            |
+| Neural networks   | Limited/simple | ⭐⭐⭐⭐⭐                                    |
+| Random Forest     | ✅              | ❌                                        |
+| SVM               | ✅              | ❌/not typical                            |
+| KNN               | ✅              | ❌                                        |
+| Linear Regression | ✅              | ✅ possible, but not its main strength    |
+| CNN               | ❌              | ✅                                        |
+| RNN               | ❌              | ✅                                        |
+| LSTM              | ❌              | ✅                                        |
+| GRU               | ❌              | ✅                                        |
+| Transformers      | ❌              | ✅                                        |
+| GPU training      | Limited        | ✅                                        |
+| Ease of learning  | ⭐⭐⭐⭐⭐          | ⭐⭐⭐                                      |
+| Tabular data      | ⭐⭐⭐⭐⭐          | ⭐⭐⭐                                      |
+| Image data        | ⭐              | ⭐⭐⭐⭐⭐                                    |
+| LLM               | ❌              | Possible, but PyTorch/HF often preferred |
 
 
 ## Scikit-learn learning roadmap
