@@ -52,6 +52,7 @@ Regression Classification Clustering PCA
 ```
 
 ## Common Scikit-learn regression models:
+```
 Linear Regression
 Ridge Regression
 Lasso Regression
@@ -60,9 +61,12 @@ Random Forest Regressor
 Gradient Boosting Regressor
 Random Forest
 Support Vector Regression
+```
 
 ## Popular Scikit-learn algorithms:
+```
 K-Means
 DBSCAN
 Agglomerative Clustering
 Gaussian Mixture Models
+```
