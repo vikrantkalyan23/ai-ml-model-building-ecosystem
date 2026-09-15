@@ -1,5 +1,9 @@
 # Major ML/AI model-building ecosystem
 
+Scikit-learn, TensorFlow, PyTorch, XGBoost, LightGBM, etc. are not all the same kind of library.
+Some build neural networks, some build tree models, some specialize in LLMs, and some are mainly for specific types of data.
+
+
 | Package / Framework           | Best for                            | Difficulty | Typical models                                                       | GPU       | Main strength            |
 | ----------------------------- | ----------------------------------- | ---------: | -------------------------------------------------------------------- | --------- | ------------------------ |
 | **Scikit-learn**              | Traditional ML                      |          ⭐ | Linear Regression, Logistic Regression, Random Forest, SVM, KNN, PCA | Usually ❌ | Easy ML                  |
