@@ -283,3 +283,173 @@ Use it for:
 Remember:
     spaCy is excellent for NLP processing, but not an LLM framework.
 ```
+
+---
+
+# 17. Rule-based Matching
+
+spaCy is not only statistical models. It also supports rule-based matching.
+
+Use the `Matcher` when you know exact token patterns.
+
+```python
+import spacy
+from spacy.matcher import Matcher
+
+nlp = spacy.load("en_core_web_sm")
+matcher = Matcher(nlp.vocab)
+
+pattern = [{"LOWER": "machine"}, {"LOWER": "learning"}]
+matcher.add("ML_TERM", [pattern])
+
+doc = nlp("I am learning machine learning.")
+matches = matcher(doc)
+
+for match_id, start, end in matches:
+    print(doc[start:end].text)
+```
+
+Rule-based matching is useful for:
+
+- Product names
+- Codes
+- Domain-specific phrases
+- Simple extraction rules
+
+---
+
+# 18. EntityRuler
+
+`EntityRuler` lets you add custom named entities.
+
+```python
+import spacy
+
+nlp = spacy.load("en_core_web_sm")
+ruler = nlp.add_pipe("entity_ruler", before="ner")
+
+patterns = [
+    {"label": "SKILL", "pattern": "machine learning"},
+    {"label": "SKILL", "pattern": "deep learning"},
+]
+
+ruler.add_patterns(patterns)
+
+doc = nlp("She knows machine learning.")
+
+for ent in doc.ents:
+    print(ent.text, ent.label_)
+```
+
+This is useful when pretrained NER does not know your domain terms.
+
+---
+
+# 19. Dependency Parsing
+
+Dependency parsing shows grammatical relationships.
+
+```python
+doc = nlp("The student reads a book.")
+
+for token in doc:
+    print(token.text, token.dep_, token.head.text)
+```
+
+Example meaning:
+
+```text
+student -> subject of reads
+book    -> object of reads
+```
+
+Use cases:
+
+- Information extraction
+- Relation extraction
+- Grammar analysis
+- Search/query understanding
+
+---
+
+# 20. Custom Pipeline Components
+
+You can add your own processing step.
+
+```python
+from spacy.language import Language
+
+@Language.component("length_component")
+def length_component(doc):
+    doc.user_data["length"] = len(doc)
+    return doc
+
+nlp.add_pipe("length_component", last=True)
+
+doc = nlp("This is a sentence.")
+print(doc.user_data["length"])
+```
+
+Pipeline idea:
+
+```text
+Tokenizer -> tagger -> parser -> NER -> your custom component
+```
+
+---
+
+# 21. Training Custom NER
+
+If built-in models are not enough, train a custom NER model.
+
+Data format idea:
+
+```text
+Text:
+    "OpenAI is in San Francisco"
+
+Entity annotations:
+    OpenAI -> ORG
+    San Francisco -> GPE
+```
+
+Training requires:
+
+```text
+Many labeled examples
+Consistent annotation rules
+Validation data
+Careful evaluation
+```
+
+---
+
+# 22. Common Mistakes
+
+| Mistake | Problem | Fix |
+|---|---|---|
+| Expecting LLM behavior | spaCy is not a chatbot | Use Transformers/LLMs |
+| Using wrong model size | Poor accuracy or slow speed | Choose sm/md/lg/trf appropriately |
+| No domain examples | Bad custom model | Label domain data |
+| Too many rules after NER | Conflicting entities | Order pipeline carefully |
+| Ignoring tokenization | Bad spans | Check token boundaries |
+
+---
+
+# 23. Model Size Choices
+
+```text
+sm  -> small, fast, lower accuracy
+md  -> medium, includes word vectors in many pipelines
+lg  -> larger, better vectors
+trf -> transformer-based, slower but stronger
+```
+
+Choose based on:
+
+```text
+speed requirement
+accuracy requirement
+available memory
+language/domain
+```

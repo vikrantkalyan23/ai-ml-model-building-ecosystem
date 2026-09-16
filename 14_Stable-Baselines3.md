@@ -217,3 +217,177 @@ Use it when:
 
 It is not for ordinary supervised ML.
 ```
+
+---
+
+# 14. How Reinforcement Learning Is Different
+
+Supervised learning has correct answers.
+
+```text
+Input -> correct label
+```
+
+Reinforcement learning has rewards.
+
+```text
+State -> action -> reward -> new state
+```
+
+The agent may not know immediately whether an action was good.
+
+Example:
+
+```text
+In a game, a move may look bad now but help win later.
+```
+
+This delayed reward problem makes RL difficult.
+
+---
+
+# 15. Policy, Value, and Q-value
+
+| Term | Meaning |
+|---|---|
+| **Policy** | Strategy for choosing actions |
+| **Value function** | Expected future reward from a state |
+| **Q-value** | Expected reward for taking an action in a state |
+
+Simple examples:
+
+```text
+Policy:
+    If pole leans left, move cart left.
+
+Value:
+    This state is good because future reward is likely high.
+
+Q-value:
+    Taking action A from state S may give high future reward.
+```
+
+---
+
+# 16. On-policy vs Off-policy
+
+| Type | Meaning | Examples |
+|---|---|---|
+| **On-policy** | Learns from current policy's behavior | PPO, A2C |
+| **Off-policy** | Can learn from past experience | DQN, SAC, TD3 |
+
+Beginner interpretation:
+
+```text
+On-policy:
+    Learn from what the current agent does.
+
+Off-policy:
+    Learn from stored or previous experiences too.
+```
+
+---
+
+# 17. Vectorized Environments
+
+RL training can be slow if one environment runs at a time.
+
+Vectorized environments run multiple copies.
+
+```text
+Env 1 ┐
+Env 2 ├──> collect experience faster
+Env 3 ┤
+Env 4 ┘
+```
+
+Example:
+
+```python
+from stable_baselines3.common.env_util import make_vec_env
+from stable_baselines3 import PPO
+
+env = make_vec_env("CartPole-v1", n_envs=4)
+
+model = PPO("MlpPolicy", env, verbose=1)
+model.learn(total_timesteps=20000)
+```
+
+---
+
+# 18. Evaluation
+
+Training reward can be noisy.
+
+Evaluate the agent separately.
+
+```python
+from stable_baselines3.common.evaluation import evaluate_policy
+
+mean_reward, std_reward = evaluate_policy(
+    model,
+    env,
+    n_eval_episodes=10
+)
+
+print(mean_reward, std_reward)
+```
+
+Why:
+
+```text
+One episode may be lucky or unlucky.
+Multiple episodes give a better estimate.
+```
+
+---
+
+# 19. Common RL Problems
+
+| Problem | Meaning | Possible fix |
+|---|---|---|
+| Sparse rewards | Agent rarely gets feedback | Shape reward carefully |
+| Unstable learning | Score jumps a lot | Tune learning rate, use more timesteps |
+| Bad exploration | Agent repeats poor behavior | Adjust exploration/settings |
+| Reward hacking | Agent exploits reward loophole | Redesign reward |
+| Slow training | Environment is expensive | Use vectorized environments |
+
+---
+
+# 20. Choosing Algorithms
+
+```text
+Discrete actions:
+    DQN, PPO, A2C
+
+Continuous actions:
+    PPO, SAC, TD3
+
+Good first choice:
+    PPO
+
+Sample-efficient continuous control:
+    SAC
+```
+
+Simple beginner advice:
+
+```text
+Start with PPO.
+If actions are continuous and PPO struggles, try SAC.
+```
+
+---
+
+# 21. Practical Workflow
+
+```text
+1. Define environment
+2. Check observation/action spaces
+3. Choose algorithm
+4. Train for enough timesteps
+5. Evaluate over many episodes
+6. Tune hyperparameters
+7. Save model
+8. Test behavior visually if possible
+```

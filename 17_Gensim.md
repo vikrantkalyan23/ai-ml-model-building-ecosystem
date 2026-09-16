@@ -248,6 +248,204 @@ Use it for:
     - Document similarity
 
 Remember:
-    Gensim explores text.
-    Transformers generate and understand text with large pretrained models.
+Gensim explores text.
+Transformers generate and understand text with large pretrained models.
+```
+
+---
+
+# 15. Bag-of-Words Representation
+
+Gensim often starts with bag-of-words.
+
+Bag-of-words ignores word order and counts words.
+
+Example:
+
+```text
+Document:
+    "machine learning machine"
+
+Vocabulary:
+    machine -> 0
+    learning -> 1
+
+Bag-of-words:
+    [(0, 2), (1, 1)]
+```
+
+Meaning:
+
+```text
+word ID 0 appears 2 times
+word ID 1 appears 1 time
+```
+
+This representation is simple and useful for topic modeling.
+
+---
+
+# 16. TF-IDF
+
+TF-IDF gives higher weight to important words and lower weight to very common words.
+
+```text
+TF  = term frequency
+IDF = inverse document frequency
+```
+
+Simple meaning:
+
+```text
+Word appears often in this document
+but not in every document
+        |
+        v
+Important word
+```
+
+Code:
+
+```python
+from gensim.models import TfidfModel
+
+tfidf = TfidfModel(corpus)
+tfidf_corpus = tfidf[corpus]
+```
+
+---
+
+# 17. Understanding LDA Topics
+
+LDA topics are groups of words.
+
+Example:
+
+```text
+Topic 0:
+    bank, loan, credit, money, finance
+
+Topic 1:
+    team, match, goal, player, league
+```
+
+Interpretation:
+
+```text
+Topic 0 may be finance.
+Topic 1 may be sports.
+```
+
+Important:
+
+```text
+LDA does not name topics automatically.
+Humans inspect top words and assign meaning.
+```
+
+---
+
+# 18. Choosing Number of Topics
+
+`num_topics` is important.
+
+Too few topics:
+
+```text
+Different themes get mixed together.
+```
+
+Too many topics:
+
+```text
+Topics become tiny, noisy, or repeated.
+```
+
+Practical approach:
+
+```text
+Try several values:
+    5, 10, 15, 20
+
+Inspect topics:
+    Are they coherent?
+    Are they useful?
+    Are they too similar?
+```
+
+---
+
+# 19. Word Embeddings
+
+Word embeddings represent words as dense vectors.
+
+```text
+king  -> [0.21, -0.14, 0.88, ...]
+queen -> [0.20, -0.10, 0.84, ...]
+```
+
+Similar words have similar vectors.
+
+Use cases:
+
+- Word similarity
+- Recommendation
+- Search
+- Clustering words/documents
+- Feature creation for ML models
+
+---
+
+# 20. Document Similarity
+
+Gensim can compare documents.
+
+Simple idea:
+
+```text
+Convert documents to vectors
+        |
+        v
+Compare vector similarity
+        |
+        v
+Find similar documents
+```
+
+Example use cases:
+
+```text
+Find duplicate articles
+Recommend similar documents
+Search related reports
+Group similar support tickets
+```
+
+---
+
+# 21. Common Mistakes
+
+| Mistake | Problem | Fix |
+|---|---|---|
+| No preprocessing | Noisy topics | Clean/tokenize text |
+| Too many stopwords | Useless topics | Remove common words |
+| Wrong num_topics | Mixed or repeated topics | Try multiple values |
+| Expecting LLM behavior | Gensim is not generative AI | Use Transformers for generation |
+| Tiny corpus | Weak topics/embeddings | Use more documents |
+
+---
+
+# 22. Practical Workflow
+
+```text
+1. Collect documents
+2. Clean text
+3. Tokenize
+4. Remove stopwords
+5. Create Dictionary
+6. Create Corpus
+7. Train TF-IDF, LDA, Word2Vec, or Doc2Vec
+8. Inspect results
+9. Tune preprocessing/model parameters
+10. Use topics or vectors in application
 ```

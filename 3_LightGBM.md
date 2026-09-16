@@ -266,3 +266,247 @@ Remember:
     Fast training is its major strength.
     Careful tuning is important.
 ```
+
+---
+
+# 15. Decision Trees, Boosting, and LightGBM
+
+To understand LightGBM properly, first understand three ideas:
+
+```text
+Decision Tree
+    |
+    v
+Gradient Boosting
+    |
+    v
+LightGBM optimization
+```
+
+## Decision tree
+
+A decision tree predicts by asking questions.
+
+```text
+Income > 50000?
+      /       \
+    Yes        No
+    /           \
+Age > 30?     Low value
+  /    \
+High   Medium
+```
+
+One tree is easy to understand but can overfit.
+
+## Gradient boosting
+
+Gradient boosting builds many weak trees one after another.
+
+```text
+Tree 1 -> first prediction
+Tree 2 -> fixes remaining mistakes
+Tree 3 -> fixes remaining mistakes
+...
+Final model -> combination of all trees
+```
+
+LightGBM is a highly optimized implementation of this idea.
+
+---
+
+# 16. Leaf-wise Growth
+
+Many tree algorithms grow level by level.
+
+```text
+Level-wise growth:
+
+        root
+       /    \
+      A      B
+     / \    / \
+    C   D  E   F
+```
+
+LightGBM commonly uses leaf-wise growth.
+
+```text
+Leaf-wise growth:
+
+        root
+       /    \
+      A      B
+            / \
+           C   D
+              / \
+             E   F
+```
+
+It chooses the leaf that gives the largest loss reduction.
+
+### Why this matters
+
+| Benefit | Risk |
+|---|---|
+| Can improve accuracy quickly | Can overfit if trees become too deep |
+| Often faster on large data | Needs `num_leaves`, `max_depth`, and regularization |
+
+Good beginner rule:
+
+```text
+If LightGBM overfits:
+    reduce num_leaves
+    reduce max_depth
+    increase min_child_samples
+    add regularization
+```
+
+---
+
+# 17. Histogram-based Learning
+
+LightGBM does not always evaluate every possible split value directly.
+
+It groups continuous values into bins.
+
+```text
+Raw values:
+12, 13, 14, 25, 26, 40, 42
+
+Bins:
+0-20, 21-35, 36-50
+```
+
+This makes training faster and reduces memory usage.
+
+```text
+Many exact values
+      |
+      v
+Smaller number of bins
+      |
+      v
+Faster split search
+```
+
+---
+
+# 18. Categorical Features in LightGBM
+
+LightGBM can handle categorical features, but you must prepare them correctly.
+
+Typical options:
+
+```text
+Option 1: Use pandas category dtype
+Option 2: Pass categorical_feature parameter
+Option 3: Encode categories carefully
+```
+
+Example idea:
+
+```python
+import pandas as pd
+import lightgbm as lgb
+
+df["city"] = df["city"].astype("category")
+
+model = lgb.LGBMClassifier()
+model.fit(X_train, y_train, categorical_feature=["city"])
+```
+
+Be careful:
+
+```text
+Do not turn categories into fake ordered numbers unless that order is real.
+
+Bad:
+    Delhi = 1, Mumbai = 2, Pune = 3
+
+The model may think Pune > Mumbai > Delhi.
+```
+
+---
+
+# 19. LightGBM Training API Styles
+
+LightGBM has two common styles.
+
+## Scikit-learn style
+
+Best for beginners.
+
+```python
+from lightgbm import LGBMClassifier
+
+model = LGBMClassifier()
+model.fit(X_train, y_train)
+predictions = model.predict(X_test)
+```
+
+## Native LightGBM style
+
+More flexible for advanced training.
+
+```python
+import lightgbm as lgb
+
+train_data = lgb.Dataset(X_train, label=y_train)
+valid_data = lgb.Dataset(X_test, label=y_test)
+
+params = {
+    "objective": "binary",
+    "metric": "binary_logloss",
+    "learning_rate": 0.05,
+}
+
+model = lgb.train(
+    params,
+    train_data,
+    valid_sets=[valid_data],
+    num_boost_round=100
+)
+```
+
+---
+
+# 20. Common Mistakes
+
+| Mistake | Why it is a problem | Fix |
+|---|---|---|
+| Too many leaves | Overfitting | Reduce `num_leaves` |
+| High learning rate | Unstable learning | Lower `learning_rate` |
+| No validation set | Cannot detect overfitting | Use validation/cross-validation |
+| Wrong categorical encoding | Misleading patterns | Use category dtype or proper encoding |
+| Tuning only one parameter | Boosting parameters interact | Tune learning rate, leaves, depth, samples |
+
+---
+
+# 21. Practical Tuning Order
+
+```text
+1. Start with a simple baseline
+2. Choose metric
+3. Set validation split
+4. Tune learning_rate and n_estimators
+5. Tune num_leaves and max_depth
+6. Tune min_child_samples
+7. Add subsample/colsample_bytree
+8. Add regularization if overfitting
+```
+
+Example:
+
+```python
+model = lgb.LGBMClassifier(
+    n_estimators=500,
+    learning_rate=0.03,
+    num_leaves=31,
+    max_depth=-1,
+    min_child_samples=20,
+    subsample=0.8,
+    colsample_bytree=0.8,
+    random_state=42
+)
+```

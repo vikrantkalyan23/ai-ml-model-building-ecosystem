@@ -273,3 +273,221 @@ Main pattern:
     evaluate model
     predict
 ```
+
+---
+
+# 16. Computation Graph Idea
+
+TensorFlow is built around tensor operations.
+
+In simple terms:
+
+```text
+Input tensors
+      |
+      v
+Operations and layers
+      |
+      v
+Output tensors
+```
+
+Older TensorFlow code focused heavily on static computation graphs. Modern TensorFlow uses eager execution by default, so operations behave more like normal Python.
+
+```python
+import tensorflow as tf
+
+x = tf.constant([1, 2, 3])
+y = x * 2
+
+print(y)
+```
+
+But TensorFlow can still compile functions for speed.
+
+```python
+@tf.function
+def double(x):
+    return x * 2
+```
+
+---
+
+# 17. What Happens During Training?
+
+Training a neural network means updating weights to reduce loss.
+
+```text
+Input data
+   |
+Forward pass
+   |
+Prediction
+   |
+Compute loss
+   |
+Backpropagation
+   |
+Update weights
+   |
+Repeat
+```
+
+Important pieces:
+
+| Piece | Meaning |
+|---|---|
+| **Weights** | Learnable numbers inside the model |
+| **Loss** | How wrong the prediction is |
+| **Optimizer** | Updates weights |
+| **Gradient** | Direction for improving weights |
+| **Epoch** | One full pass through training data |
+| **Batch** | Small group of samples used per update |
+
+---
+
+# 18. Model Building APIs
+
+TensorFlow/Keras gives three common ways to build models.
+
+## Sequential API
+
+Best for simple layer-by-layer models.
+
+```python
+model = tf.keras.Sequential([
+    tf.keras.layers.Dense(64, activation="relu"),
+    tf.keras.layers.Dense(1)
+])
+```
+
+## Functional API
+
+Best for models with multiple inputs, outputs, or branches.
+
+```python
+inputs = tf.keras.Input(shape=(10,))
+x = tf.keras.layers.Dense(64, activation="relu")(inputs)
+outputs = tf.keras.layers.Dense(1)(x)
+
+model = tf.keras.Model(inputs=inputs, outputs=outputs)
+```
+
+## Subclassing
+
+Best for advanced custom behavior.
+
+```python
+class MyModel(tf.keras.Model):
+    def __init__(self):
+        super().__init__()
+        self.dense = tf.keras.layers.Dense(1)
+
+    def call(self, inputs):
+        return self.dense(inputs)
+```
+
+---
+
+# 19. Dataset Pipeline
+
+For larger datasets, TensorFlow uses `tf.data`.
+
+```python
+dataset = tf.data.Dataset.from_tensor_slices((X_train, y_train))
+dataset = dataset.shuffle(1000).batch(32).prefetch(tf.data.AUTOTUNE)
+
+model.fit(dataset, epochs=10)
+```
+
+Pipeline idea:
+
+```text
+Read data
+   |
+Shuffle
+   |
+Batch
+   |
+Prefetch
+   |
+Train efficiently
+```
+
+---
+
+# 20. Regularization Techniques
+
+Neural networks can overfit.
+
+Common solutions:
+
+| Technique | Meaning |
+|---|---|
+| **Dropout** | Randomly disables neurons during training |
+| **L2 regularization** | Penalizes large weights |
+| **Early stopping** | Stops when validation score stops improving |
+| **Data augmentation** | Creates varied training examples |
+| **Batch normalization** | Stabilizes activations |
+
+Example:
+
+```python
+callback = tf.keras.callbacks.EarlyStopping(
+    monitor="val_loss",
+    patience=5,
+    restore_best_weights=True
+)
+
+model.fit(
+    X_train,
+    y_train,
+    validation_split=0.2,
+    epochs=100,
+    callbacks=[callback]
+)
+```
+
+---
+
+# 21. Saving and Loading Models
+
+```python
+model.save("my_model.keras")
+
+loaded_model = tf.keras.models.load_model("my_model.keras")
+predictions = loaded_model.predict(X_test)
+```
+
+Deployment options:
+
+| Tool | Use |
+|---|---|
+| **TensorFlow Serving** | Server deployment |
+| **TensorFlow Lite** | Mobile/edge devices |
+| **TensorFlow.js** | Browser/JavaScript |
+
+---
+
+# 22. Common Mistakes
+
+| Mistake | Problem | Fix |
+|---|---|---|
+| Too many epochs | Overfitting | Use validation and early stopping |
+| Wrong loss function | Model learns wrong objective | Match loss to task |
+| No scaling | Training becomes unstable | Normalize input data |
+| Too large learning rate | Loss may explode | Lower learning rate |
+| Too little data | Poor generalization | Use simpler model or augmentation |
+
+---
+
+# 23. Loss Function Selection
+
+| Task | Output layer | Loss |
+|---|---|---|
+| Regression | Dense(1) | mse or mae |
+| Binary classification | Dense(1, sigmoid) | binary_crossentropy |
+| Multiclass integer labels | Dense(classes, softmax) | sparse_categorical_crossentropy |
+| Multiclass one-hot labels | Dense(classes, softmax) | categorical_crossentropy |
+
+This matching is very important.

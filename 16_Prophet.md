@@ -240,3 +240,191 @@ Required columns:
     ds = date
     y  = value
 ```
+
+---
+
+# 15. Prophet Model Components
+
+Prophet models time series using components.
+
+```text
+y(t) = trend(t) + seasonality(t) + holidays(t) + error
+```
+
+Simple meaning:
+
+```text
+trend:
+    long-term increase or decrease
+
+seasonality:
+    repeating pattern
+
+holidays:
+    special date effects
+
+error:
+    noise the model cannot explain
+```
+
+This makes Prophet easier to interpret than many black-box forecasting models.
+
+---
+
+# 16. Trend
+
+Trend is the long-term direction.
+
+Examples:
+
+```text
+Sales slowly increasing
+Website traffic declining
+Revenue growing after product launch
+```
+
+Prophet can model trend changes.
+
+```text
+Before launch:
+    slow growth
+
+After launch:
+    faster growth
+```
+
+These trend-change points are called changepoints.
+
+---
+
+# 17. Seasonality
+
+Seasonality means repeating patterns.
+
+Examples:
+
+```text
+Daily:
+    traffic peaks at 8 PM
+
+Weekly:
+    lower sales on weekends
+
+Yearly:
+    higher demand during holidays
+```
+
+Prophet can include:
+
+```python
+model = Prophet(
+    daily_seasonality=True,
+    weekly_seasonality=True,
+    yearly_seasonality=True
+)
+```
+
+---
+
+# 18. Forecast Uncertainty
+
+Prophet returns uncertainty intervals.
+
+```text
+yhat_lower  <= likely forecast range <= yhat_upper
+```
+
+Example:
+
+```text
+yhat       = 100
+yhat_lower = 85
+yhat_upper = 120
+```
+
+Meaning:
+
+```text
+The model predicts around 100,
+but reasonable future values may fall between 85 and 120.
+```
+
+Forecast uncertainty usually increases further into the future.
+
+---
+
+# 19. Regressors
+
+Prophet can use extra variables.
+
+Example:
+
+```text
+sales may depend on:
+    date
+    discount
+    ad_spend
+    holiday
+```
+
+Code:
+
+```python
+model = Prophet()
+model.add_regressor("ad_spend")
+model.add_regressor("discount")
+
+model.fit(df)
+```
+
+The future dataframe must also include future values for those regressors.
+
+---
+
+# 20. Evaluation
+
+Do not judge a forecast only by looking at the chart.
+
+Use backtesting.
+
+```text
+Train on older data
+Predict newer period
+Compare forecast with actual values
+```
+
+Common metrics:
+
+| Metric | Meaning |
+|---|---|
+| **MAE** | Average absolute error |
+| **RMSE** | Penalizes large errors |
+| **MAPE** | Percentage error |
+
+---
+
+# 21. Common Mistakes
+
+| Mistake | Problem | Fix |
+|---|---|---|
+| Wrong column names | Prophet fails | Use `ds` and `y` |
+| Missing future regressor values | Cannot predict correctly | Provide future regressor data |
+| Too little history | Weak seasonality learning | Use more historical data |
+| Ignoring outliers | Distorted forecast | Clean or mark outliers |
+| Forecasting too far ahead | High uncertainty | Keep horizon realistic |
+
+---
+
+# 22. Practical Workflow
+
+```text
+1. Prepare ds/y dataframe
+2. Plot data
+3. Clean missing values and outliers
+4. Fit baseline Prophet model
+5. Add holidays/seasonality if needed
+6. Backtest forecast
+7. Tune changepoint and seasonality settings
+8. Create future dataframe
+9. Predict and explain components
+```

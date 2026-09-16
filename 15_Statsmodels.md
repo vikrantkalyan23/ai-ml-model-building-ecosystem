@@ -225,3 +225,170 @@ Use it for:
 Scikit-learn predicts.
 Statsmodels explains.
 ```
+
+---
+
+# 14. Reading an OLS Summary
+
+Statsmodels summaries contain many statistical values.
+
+Important parts:
+
+| Item | Meaning |
+|---|---|
+| **coef** | Estimated effect of the variable |
+| **std err** | Uncertainty of coefficient estimate |
+| **t** | Test statistic |
+| **P>|t|** | p-value |
+| **[0.025, 0.975]** | 95% confidence interval |
+| **R-squared** | Variance explained |
+| **Adj. R-squared** | R-squared adjusted for number of predictors |
+
+Example interpretation:
+
+```text
+coef for advertising = 2.5
+
+Meaning:
+    if advertising increases by 1 unit,
+    predicted sales increase by about 2.5 units,
+    assuming other variables stay constant.
+```
+
+---
+
+# 15. p-values in Simple Words
+
+A p-value helps check whether an observed relationship may be due to chance.
+
+Simple beginner interpretation:
+
+```text
+Small p-value:
+    stronger evidence that the feature has a real relationship
+
+Large p-value:
+    weaker evidence
+```
+
+Common threshold:
+
+```text
+p < 0.05 is often treated as statistically significant
+```
+
+Important warning:
+
+```text
+Statistical significance does not prove practical importance.
+It also does not prove causation by itself.
+```
+
+---
+
+# 16. Assumptions of Linear Regression
+
+OLS regression has assumptions.
+
+| Assumption | Simple meaning |
+|---|---|
+| **Linearity** | Relationship is roughly linear |
+| **Independence** | Observations are independent |
+| **Homoscedasticity** | Error spread is roughly constant |
+| **Normal residuals** | Errors are roughly normal for inference |
+| **Low multicollinearity** | Features are not too strongly correlated |
+
+If assumptions are badly broken, p-values and intervals may be misleading.
+
+---
+
+# 17. Multicollinearity
+
+Multicollinearity means features are strongly related to each other.
+
+Example:
+
+```text
+house_size_sqft
+number_of_rooms
+```
+
+These may carry similar information.
+
+Problem:
+
+```text
+Model may struggle to separate each feature's individual effect.
+Coefficients can become unstable.
+```
+
+Common check:
+
+```python
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+
+vif = variance_inflation_factor(X.values, column_index)
+```
+
+---
+
+# 18. Residual Analysis
+
+Residuals are prediction errors.
+
+```text
+residual = actual - predicted
+```
+
+Good residual pattern:
+
+```text
+Random scatter around zero
+```
+
+Bad residual patterns:
+
+```text
+Curved pattern       -> missing nonlinear relationship
+Funnel shape         -> non-constant variance
+Large extreme points -> outliers
+```
+
+Residual analysis helps judge whether the model is appropriate.
+
+---
+
+# 19. Logistic Regression in Statsmodels
+
+Statsmodels can also fit logistic regression.
+
+```python
+import statsmodels.api as sm
+
+X = sm.add_constant(X)
+
+model = sm.Logit(y, X)
+results = model.fit()
+
+print(results.summary())
+```
+
+Use logistic regression when the target is binary.
+
+```text
+0/1
+No/Yes
+False/True
+```
+
+---
+
+# 20. Common Mistakes
+
+| Mistake | Problem | Fix |
+|---|---|---|
+| Reading p-value as causation | Wrong conclusion | Need causal design |
+| Ignoring assumptions | Misleading inference | Check residuals/diagnostics |
+| Forgetting constant | Wrong regression specification | Use `sm.add_constant` |
+| Too many correlated features | Unstable coefficients | Check multicollinearity |
+| Using Statsmodels for pure prediction only | Not its main strength | Use Scikit-learn too |

@@ -259,3 +259,184 @@ Most important pattern:
     model.compile(...)
     model.fit(...)
 ```
+
+---
+
+# 17. Sequential vs Functional API
+
+Keras has more than one way to create models.
+
+## Sequential API
+
+Use it when the model is a simple stack.
+
+```text
+Input -> Layer -> Layer -> Output
+```
+
+```python
+model = tf.keras.Sequential([
+    tf.keras.layers.Dense(64, activation="relu"),
+    tf.keras.layers.Dense(1)
+])
+```
+
+## Functional API
+
+Use it when the model has branches, shared layers, or multiple inputs/outputs.
+
+```text
+Input A ----\
+             -> Combined layers -> Output
+Input B ----/
+```
+
+```python
+inputs = tf.keras.Input(shape=(10,))
+x = tf.keras.layers.Dense(64, activation="relu")(inputs)
+outputs = tf.keras.layers.Dense(1)(x)
+
+model = tf.keras.Model(inputs, outputs)
+```
+
+---
+
+# 18. Choosing Output Layers
+
+The final layer depends on the task.
+
+| Task | Final layer | Meaning |
+|---|---|---|
+| Regression | `Dense(1)` | Predict one number |
+| Binary classification | `Dense(1, activation="sigmoid")` | Probability of class 1 |
+| Multiclass classification | `Dense(num_classes, activation="softmax")` | Probability for each class |
+
+Example:
+
+```python
+# Regression
+tf.keras.layers.Dense(1)
+
+# Binary classification
+tf.keras.layers.Dense(1, activation="sigmoid")
+
+# Multiclass classification
+tf.keras.layers.Dense(10, activation="softmax")
+```
+
+---
+
+# 19. Optimizers
+
+Optimizers update model weights.
+
+| Optimizer | Simple meaning |
+|---|---|
+| **SGD** | Basic gradient descent |
+| **Adam** | Popular adaptive optimizer |
+| **RMSprop** | Useful for some sequence tasks |
+| **Adagrad** | Adapts learning rate per parameter |
+
+Most beginner projects start with Adam.
+
+```python
+model.compile(
+    optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
+    loss="mse"
+)
+```
+
+---
+
+# 20. Callbacks
+
+Callbacks run during training.
+
+Common callbacks:
+
+| Callback | Use |
+|---|---|
+| **EarlyStopping** | Stop when validation stops improving |
+| **ModelCheckpoint** | Save best model |
+| **ReduceLROnPlateau** | Lower learning rate when stuck |
+| **TensorBoard** | Visualize training |
+
+Example:
+
+```python
+callbacks = [
+    tf.keras.callbacks.EarlyStopping(patience=5, restore_best_weights=True),
+    tf.keras.callbacks.ModelCheckpoint("best.keras", save_best_only=True),
+]
+
+model.fit(
+    X_train,
+    y_train,
+    validation_split=0.2,
+    epochs=100,
+    callbacks=callbacks
+)
+```
+
+---
+
+# 21. Overfitting and Underfitting
+
+```text
+Underfitting:
+    training score bad
+    validation score bad
+
+Overfitting:
+    training score good
+    validation score bad
+
+Good fit:
+    training score good
+    validation score good
+```
+
+Fixes:
+
+| Problem | Possible fix |
+|---|---|
+| Underfitting | Bigger model, train longer, better features |
+| Overfitting | Dropout, regularization, early stopping, more data |
+
+---
+
+# 22. Image Data Augmentation
+
+Data augmentation creates varied image examples.
+
+```python
+augmentation = tf.keras.Sequential([
+    tf.keras.layers.RandomFlip("horizontal"),
+    tf.keras.layers.RandomRotation(0.1),
+    tf.keras.layers.RandomZoom(0.1),
+])
+```
+
+Why it helps:
+
+```text
+Original image
+      |
+      v
+Flipped / rotated / zoomed images
+      |
+      v
+Model learns more robust patterns
+```
+
+---
+
+# 23. Common Mistakes
+
+| Mistake | Problem | Fix |
+|---|---|---|
+| Wrong loss function | Bad learning objective | Match loss to task |
+| Too many epochs | Overfitting | Use EarlyStopping |
+| No validation data | Cannot monitor generalization | Use validation split |
+| Not scaling inputs | Slow/unstable training | Normalize data |
+| Huge model for small data | Overfitting | Use smaller model |

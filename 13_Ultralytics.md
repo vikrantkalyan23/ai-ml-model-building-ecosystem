@@ -250,3 +250,193 @@ Use it for:
 OpenCV processes images.
 Ultralytics detects objects with deep learning.
 ```
+
+---
+
+# 16. Object Detection Output
+
+An object detection model does more than classify the image.
+
+It returns:
+
+```text
+class label
+confidence score
+bounding box coordinates
+```
+
+Example:
+
+```text
+person  0.91  x1=50  y1=80  x2=210  y2=400
+car     0.86  x1=300 y1=180 x2=620  y2=380
+```
+
+Bounding box meaning:
+
+```text
+(x1, y1) = top-left corner
+(x2, y2) = bottom-right corner
+```
+
+---
+
+# 17. Dataset Format
+
+YOLO detection datasets usually store labels as text files.
+
+Example label line:
+
+```text
+0 0.50 0.50 0.25 0.30
+```
+
+Meaning:
+
+```text
+class_id x_center y_center width height
+```
+
+Values are normalized between 0 and 1.
+
+```text
+0.50 means 50% of image width/height
+```
+
+Typical folder structure:
+
+```text
+dataset/
+  images/
+    train/
+    val/
+  labels/
+    train/
+    val/
+  data.yaml
+```
+
+---
+
+# 18. Detection vs Segmentation vs Pose
+
+| Task | Output |
+|---|---|
+| **Detection** | Bounding boxes |
+| **Segmentation** | Pixel masks |
+| **Classification** | One label for whole image |
+| **Pose** | Keypoints such as elbows, knees, shoulders |
+| **Tracking** | Object identity across video frames |
+
+Example:
+
+```text
+Detection:
+    box around person
+
+Segmentation:
+    exact person-shaped mask
+
+Pose:
+    body keypoints
+```
+
+---
+
+# 19. Inference Results
+
+Ultralytics results contain useful objects.
+
+```python
+results = model("image.jpg")
+
+for result in results:
+    boxes = result.boxes
+    print(boxes.xyxy)
+    print(boxes.conf)
+    print(boxes.cls)
+```
+
+Common fields:
+
+| Field | Meaning |
+|---|---|
+| **xyxy** | Box coordinates |
+| **conf** | Confidence scores |
+| **cls** | Class IDs |
+| **masks** | Segmentation masks |
+| **keypoints** | Pose keypoints |
+
+---
+
+# 20. Training Quality Checklist
+
+Good model performance depends heavily on dataset quality.
+
+Checklist:
+
+```text
+Enough images for each class
+Correct labels
+Consistent class names
+Clear object boundaries
+Train/validation split
+Varied lighting/backgrounds
+Objects at different sizes
+No duplicate leakage between train and val
+```
+
+Bad labels create bad models.
+
+```text
+Wrong boxes -> model learns wrong object positions
+Missing labels -> model thinks real objects are background
+```
+
+---
+
+# 21. Common Training Problems
+
+| Problem | Possible cause | Fix |
+|---|---|---|
+| Low precision | Many false positives | Increase data quality, adjust confidence |
+| Low recall | Missing objects | More examples, better labels |
+| Overfitting | Small dataset | Augmentation, more data, fewer epochs |
+| Poor small-object detection | Objects too tiny | Higher image size, better labels |
+| Class confusion | Similar classes | More examples and clearer labels |
+
+---
+
+# 22. Exporting Models
+
+Ultralytics can export models to deployment formats.
+
+```python
+model.export(format="onnx")
+```
+
+Common export formats:
+
+| Format | Use |
+|---|---|
+| **ONNX** | Cross-platform inference |
+| **TorchScript** | PyTorch deployment |
+| **TensorRT** | NVIDIA GPU optimization |
+| **CoreML** | Apple devices |
+| **TFLite** | Mobile/edge devices |
+
+---
+
+# 23. Practical Workflow
+
+```text
+1. Collect images
+2. Label objects
+3. Create data.yaml
+4. Train YOLO model
+5. Evaluate mAP, precision, recall
+6. Test on real images/videos
+7. Improve labels/data
+8. Export model
+9. Deploy
+```

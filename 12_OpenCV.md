@@ -241,3 +241,179 @@ Use it for:
     - Drawing boxes and labels
     - Preparing images for ML
 ```
+
+---
+
+# 15. Images as Arrays
+
+OpenCV represents an image as a NumPy array.
+
+```text
+Grayscale image:
+    height x width
+
+Color image:
+    height x width x channels
+```
+
+Example:
+
+```python
+import cv2
+
+image = cv2.imread("image.jpg")
+
+print(image.shape)
+```
+
+Output idea:
+
+```text
+(720, 1280, 3)
+
+720  = height
+1280 = width
+3    = color channels
+```
+
+---
+
+# 16. Color Spaces
+
+OpenCV reads color images as BGR.
+
+Many other libraries use RGB.
+
+```python
+bgr = cv2.imread("image.jpg")
+rgb = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
+gray = cv2.cvtColor(bgr, cv2.COLOR_BGR2GRAY)
+```
+
+Common color spaces:
+
+| Color space | Use |
+|---|---|
+| **BGR** | OpenCV default |
+| **RGB** | Matplotlib/PIL display |
+| **GRAY** | Simpler image processing |
+| **HSV** | Color filtering |
+
+---
+
+# 17. Thresholding
+
+Thresholding converts pixels based on a cutoff.
+
+```python
+gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+_, thresholded = cv2.threshold(
+    gray,
+    127,
+    255,
+    cv2.THRESH_BINARY
+)
+```
+
+Simple meaning:
+
+```text
+Pixel > threshold -> white
+Pixel <= threshold -> black
+```
+
+Useful for:
+
+- Document processing
+- Shape extraction
+- Simple segmentation
+- Preprocessing scanned images
+
+---
+
+# 18. Contours
+
+Contours are boundaries of shapes.
+
+```python
+contours, hierarchy = cv2.findContours(
+    thresholded,
+    cv2.RETR_EXTERNAL,
+    cv2.CHAIN_APPROX_SIMPLE
+)
+
+cv2.drawContours(image, contours, -1, (0, 255, 0), 2)
+```
+
+Flow:
+
+```text
+Image -> grayscale -> threshold/edges -> contours -> shape analysis
+```
+
+Contour use cases:
+
+- Count objects
+- Detect shapes
+- Find document boundaries
+- Measure object area
+
+---
+
+# 19. Morphological Operations
+
+Morphology changes binary image shapes.
+
+| Operation | Meaning |
+|---|---|
+| **Erosion** | Shrinks white regions |
+| **Dilation** | Expands white regions |
+| **Opening** | Removes small noise |
+| **Closing** | Fills small holes |
+
+Example:
+
+```python
+kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+opened = cv2.morphologyEx(thresholded, cv2.MORPH_OPEN, kernel)
+```
+
+---
+
+# 20. OpenCV with Deep Learning
+
+OpenCV is often used before and after deep-learning models.
+
+```text
+OpenCV reads image
+      |
+OpenCV resizes/normalizes
+      |
+Deep-learning model predicts
+      |
+OpenCV draws boxes/labels
+```
+
+Example:
+
+```python
+image = cv2.imread("image.jpg")
+resized = cv2.resize(image, (640, 640))
+
+# model prediction happens here
+
+cv2.rectangle(image, (50, 50), (200, 200), (0, 255, 0), 2)
+```
+
+---
+
+# 21. Common Mistakes
+
+| Mistake | Problem | Fix |
+|---|---|---|
+| Forgetting BGR/RGB difference | Wrong colors | Convert color space |
+| Hardcoding image paths | File read fails | Check path and `image is None` |
+| Wrong width/height order | Distorted resize/crops | Remember OpenCV size is `(width, height)` |
+| Too much blur | Removes useful detail | Tune kernel size |
+| Poor lighting | Bad detection | Normalize or improve image capture |

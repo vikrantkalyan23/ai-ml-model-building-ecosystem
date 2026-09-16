@@ -248,3 +248,184 @@ Use it for:
 Most important idea:
     tokenizer + model = transformer workflow
 ```
+
+---
+
+# 15. Why Pretrained Models Matter
+
+Large transformer models are trained on huge datasets.
+
+This training teaches general language or vision patterns.
+
+```text
+Massive pretraining data
+        |
+        v
+General pretrained model
+        |
+        v
+Use directly or fine-tune
+```
+
+Instead of training from zero, you reuse learned knowledge.
+
+Example:
+
+```text
+BERT already understands many language patterns.
+You fine-tune it for sentiment, spam, or intent classification.
+```
+
+---
+
+# 16. Tokenization in More Detail
+
+Models do not read raw text directly.
+
+They read token IDs.
+
+```text
+"I love ML"
+      |
+Tokenizer
+      |
+[101, 1045, 2293, 19875, 102]
+```
+
+Tokenizer output usually includes:
+
+| Field | Meaning |
+|---|---|
+| **input_ids** | Numeric token IDs |
+| **attention_mask** | Which tokens are real vs padding |
+| **token_type_ids** | Segment IDs for some models |
+
+Example:
+
+```python
+inputs = tokenizer(
+    ["I love ML", "Transformers are useful"],
+    padding=True,
+    truncation=True,
+    return_tensors="pt"
+)
+```
+
+---
+
+# 17. Model Families
+
+| Model family | Main use |
+|---|---|
+| **BERT** | Understanding, classification, embeddings |
+| **GPT-style** | Text generation |
+| **T5** | Text-to-text tasks |
+| **BART** | Summarization and generation |
+| **DistilBERT** | Smaller/faster BERT-style model |
+| **Vision Transformer** | Image tasks |
+| **Whisper** | Speech recognition |
+
+Simple choice:
+
+```text
+Need classification?   BERT-style
+Need generation?       GPT/T5/BART-style
+Need summarization?    T5/BART
+Need speech-to-text?   Whisper
+```
+
+---
+
+# 18. Trainer API
+
+For fine-tuning, Hugging Face provides `Trainer`.
+
+```python
+from transformers import Trainer, TrainingArguments
+
+training_args = TrainingArguments(
+    output_dir="results",
+    learning_rate=2e-5,
+    per_device_train_batch_size=8,
+    num_train_epochs=3,
+    eval_strategy="epoch",
+)
+
+trainer = Trainer(
+    model=model,
+    args=training_args,
+    train_dataset=train_dataset,
+    eval_dataset=eval_dataset,
+    tokenizer=tokenizer,
+)
+
+trainer.train()
+```
+
+Why it helps:
+
+```text
+Handles training loop
+Handles evaluation
+Handles saving checkpoints
+Handles batching
+```
+
+---
+
+# 19. Inference vs Fine-tuning
+
+| Topic | Inference | Fine-tuning |
+|---|---|---|
+| Meaning | Use existing model | Train model on your data |
+| Data needed | Optional prompt/input | Labeled or task data |
+| Compute need | Lower | Higher |
+| Code complexity | Lower | Higher |
+| Output | General model behavior | Task-specific behavior |
+
+Beginner advice:
+
+```text
+Try pipeline/inference first.
+Fine-tune only when the pretrained model is not good enough.
+```
+
+---
+
+# 20. Common Mistakes
+
+| Mistake | Problem | Fix |
+|---|---|---|
+| Using wrong model head | Task mismatch | Use correct AutoModelFor... class |
+| No truncation | Input too long errors | Set `truncation=True` |
+| No padding for batches | Shape mismatch | Set `padding=True` |
+| Huge model on small GPU | Out of memory | Use smaller model or quantization |
+| Ignoring license | Legal/project risk | Check model license |
+
+---
+
+# 21. Practical Model Selection
+
+```text
+Small and fast:
+    distilbert-base-uncased
+
+Text classification:
+    bert-base-uncased
+    roberta-base
+
+Text generation:
+    GPT-style causal language model
+
+Summarization:
+    T5 or BART style model
+
+Embeddings:
+    sentence-transformers models
+```
+
+Always match:
+
+```text
+task + model type + hardware + license
+```

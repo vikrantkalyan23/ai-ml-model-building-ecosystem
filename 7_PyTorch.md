@@ -261,3 +261,188 @@ Core pattern:
     backward
     optimizer step
 ```
+
+---
+
+# 16. Autograd
+
+Autograd is PyTorch's automatic differentiation system.
+
+It records operations on tensors and calculates gradients.
+
+```python
+import torch
+
+x = torch.tensor(2.0, requires_grad=True)
+y = x ** 2 + 3 * x
+
+y.backward()
+
+print(x.grad)
+```
+
+Flow:
+
+```text
+Tensor with requires_grad=True
+        |
+Operations
+        |
+Loss
+        |
+backward()
+        |
+Gradients
+```
+
+Gradients tell the optimizer how to update weights.
+
+---
+
+# 17. Dataset and DataLoader
+
+For real projects, data is loaded in batches.
+
+```python
+from torch.utils.data import TensorDataset, DataLoader
+
+dataset = TensorDataset(X_train, y_train)
+loader = DataLoader(dataset, batch_size=32, shuffle=True)
+
+for X_batch, y_batch in loader:
+    predictions = model(X_batch)
+```
+
+Why batching matters:
+
+```text
+Full dataset may be too large
+Batches make training memory-friendly
+Shuffling improves learning
+```
+
+---
+
+# 18. Training and Evaluation Mode
+
+PyTorch models have modes.
+
+```python
+model.train()
+```
+
+Use during training.
+
+```python
+model.eval()
+```
+
+Use during evaluation.
+
+Why it matters:
+
+| Layer | Train mode | Eval mode |
+|---|---|---|
+| Dropout | Randomly drops units | Uses all units |
+| BatchNorm | Uses batch statistics | Uses stored statistics |
+
+Evaluation should usually use:
+
+```python
+model.eval()
+
+with torch.no_grad():
+    predictions = model(X_test)
+```
+
+---
+
+# 19. Device Management
+
+PyTorch does not automatically move everything to GPU.
+
+```python
+device = "cuda" if torch.cuda.is_available() else "cpu"
+
+model = model.to(device)
+X_batch = X_batch.to(device)
+y_batch = y_batch.to(device)
+```
+
+Common error:
+
+```text
+Expected all tensors to be on the same device
+```
+
+Fix:
+
+```text
+Move model and data to the same device.
+```
+
+---
+
+# 20. Complete Training Skeleton
+
+```python
+import torch
+from torch import nn
+
+device = "cuda" if torch.cuda.is_available() else "cpu"
+model = SimpleModel().to(device)
+
+loss_fn = nn.BCELoss()
+optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+
+for epoch in range(10):
+    model.train()
+
+    for X_batch, y_batch in train_loader:
+        X_batch = X_batch.to(device)
+        y_batch = y_batch.to(device)
+
+        predictions = model(X_batch)
+        loss = loss_fn(predictions, y_batch)
+
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+    model.eval()
+    with torch.no_grad():
+        # validation code here
+        pass
+```
+
+---
+
+# 21. Saving and Loading
+
+Recommended beginner style:
+
+```python
+torch.save(model.state_dict(), "model.pt")
+
+model = SimpleModel()
+model.load_state_dict(torch.load("model.pt"))
+model.eval()
+```
+
+Meaning:
+
+```text
+state_dict = learned weights and buffers
+```
+
+---
+
+# 22. Common Mistakes
+
+| Mistake | Problem | Fix |
+|---|---|---|
+| Forgetting `zero_grad()` | Gradients accumulate | Call before backward |
+| Forgetting `model.eval()` | Wrong validation behavior | Set eval mode |
+| No `torch.no_grad()` | Wastes memory in evaluation | Use no_grad |
+| Device mismatch | Runtime error | Move model/data to same device |
+| Wrong tensor shape | Layer mismatch | Print shapes often |

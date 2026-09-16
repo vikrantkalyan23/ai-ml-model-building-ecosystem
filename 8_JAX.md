@@ -260,3 +260,190 @@ Use it for:
 Remember:
     JAX is powerful, but less beginner-friendly than Keras or Scikit-learn.
 ```
+
+---
+
+# 16. Functional Programming Style
+
+JAX works best when functions are pure.
+
+Pure function idea:
+
+```text
+Same input -> same output
+No hidden changes
+No unexpected side effects
+```
+
+Good JAX style:
+
+```python
+def add_one(x):
+    return x + 1
+```
+
+Less ideal style:
+
+```python
+total = 0
+
+def add_to_total(x):
+    global total
+    total += x
+    return total
+```
+
+Why it matters:
+
+```text
+JAX transformations such as jit, grad, and vmap
+work best with predictable pure functions.
+```
+
+---
+
+# 17. Random Numbers in JAX
+
+JAX handles randomness differently from NumPy.
+
+You explicitly pass random keys.
+
+```python
+import jax
+
+key = jax.random.PRNGKey(42)
+values = jax.random.normal(key, shape=(3,))
+
+print(values)
+```
+
+To generate more random values, split the key.
+
+```python
+key, subkey = jax.random.split(key)
+values = jax.random.normal(subkey, shape=(3,))
+```
+
+Simple meaning:
+
+```text
+Randomness is explicit.
+This makes experiments easier to reproduce.
+```
+
+---
+
+# 18. JAX Arrays Are Immutable
+
+JAX arrays should not be changed in place like normal Python lists.
+
+Instead of:
+
+```python
+# Not JAX style
+x[0] = 10
+```
+
+Use:
+
+```python
+x = x.at[0].set(10)
+```
+
+Why:
+
+```text
+Immutable-style updates help JAX compile and transform code safely.
+```
+
+---
+
+# 19. Training Loop Idea in JAX
+
+A JAX training step is usually written as a function.
+
+```python
+import jax
+import jax.numpy as jnp
+
+def loss_fn(params, X, y):
+    predictions = X @ params
+    return jnp.mean((predictions - y) ** 2)
+
+@jax.jit
+def train_step(params, X, y, learning_rate):
+    grads = jax.grad(loss_fn)(params, X, y)
+    params = params - learning_rate * grads
+    return params
+```
+
+Flow:
+
+```text
+params + data
+      |
+loss_fn
+      |
+grad
+      |
+update params
+```
+
+---
+
+# 20. Why JIT Can Be Surprising
+
+`jax.jit` compiles a function.
+
+The first call can be slower because compilation happens.
+
+```text
+First call:
+    compile + run
+
+Later calls:
+    run compiled function
+```
+
+JIT works best when shapes are stable.
+
+Common issue:
+
+```text
+Changing input shapes repeatedly can cause repeated compilation.
+```
+
+---
+
+# 21. JAX Ecosystem
+
+JAX itself is low-level. Many projects use extra libraries.
+
+| Library | Purpose |
+|---|---|
+| **Flax** | Neural-network models |
+| **Haiku** | Neural-network models |
+| **Optax** | Optimizers and losses |
+| **Orbax** | Checkpointing |
+| **Equinox** | Neural networks with PyTree style |
+
+Typical stack:
+
+```text
+JAX      -> arrays, grad, jit, vmap
+Flax     -> model layers
+Optax    -> optimizer
+Orbax    -> checkpoints
+```
+
+---
+
+# 22. Common Mistakes
+
+| Mistake | Problem | Fix |
+|---|---|---|
+| Writing side-effect-heavy code | Hard for JAX transformations | Use pure functions |
+| Mutating arrays directly | Not JAX style | Use `.at[].set()` |
+| Forgetting random keys | Repeated or invalid randomness | Split keys |
+| Changing shapes under jit | Recompilation | Keep shapes stable |
+| Expecting PyTorch style | Different mental model | Think functions + transformations |

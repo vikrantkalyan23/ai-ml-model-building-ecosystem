@@ -274,3 +274,229 @@ Use it for:
     - Ranking
     - Business/tabular ML data
 ```
+
+---
+
+# 16. Why Categorical Features Are Difficult
+
+Many real datasets contain text categories.
+
+```text
+city       device      browser
+Delhi      Mobile      Chrome
+Mumbai     Desktop     Firefox
+Pune       Mobile      Safari
+```
+
+Most machine-learning models need numbers, so categories must be converted.
+
+Common encoding methods:
+
+| Method | Problem |
+|---|---|
+| Label encoding | Creates fake order |
+| One-hot encoding | Can create too many columns |
+| Target encoding | Can cause leakage if done badly |
+
+CatBoost was designed to handle this problem carefully.
+
+---
+
+# 17. Ordered Target Statistics
+
+CatBoost uses smart categorical encoding based on target statistics.
+
+Simple idea:
+
+```text
+Category -> average target value for that category
+```
+
+But normal target encoding can leak information.
+
+Example problem:
+
+```text
+If you use the row's own target while encoding that row,
+the model gets information it should not have.
+```
+
+CatBoost reduces this risk using ordered calculations.
+
+```text
+Rows are processed in an order.
+For each row, category statistics are computed from previous rows only.
+```
+
+This helps prevent target leakage.
+
+---
+
+# 18. Ordered Boosting
+
+CatBoost also uses ordered boosting to reduce prediction shift.
+
+Beginner meaning:
+
+```text
+The model avoids learning from information that would not be available
+when making a real prediction.
+```
+
+This is one reason CatBoost often works well with less preprocessing.
+
+---
+
+# 19. Symmetric Trees
+
+CatBoost often uses symmetric or oblivious trees.
+
+In a symmetric tree, the same split is used at each level.
+
+```text
+Level 1: same question
+Level 2: same question for all nodes at that level
+Level 3: same question for all nodes at that level
+```
+
+Benefits:
+
+- Fast prediction
+- More regular structure
+- Can reduce overfitting
+- Efficient implementation
+
+Tradeoff:
+
+- Less flexible than arbitrary trees in some cases
+
+---
+
+# 20. Pool Object
+
+CatBoost has a special `Pool` object for data.
+
+It is useful when you have categorical features.
+
+```python
+from catboost import Pool, CatBoostClassifier
+
+train_pool = Pool(
+    data=X_train,
+    label=y_train,
+    cat_features=["city", "device"]
+)
+
+model = CatBoostClassifier(verbose=0)
+model.fit(train_pool)
+```
+
+Why use `Pool`?
+
+```text
+It stores data, labels, categorical features, text features,
+weights, and metadata in a CatBoost-friendly format.
+```
+
+---
+
+# 21. Feature Importance
+
+CatBoost can show which features matter most.
+
+```python
+importance = model.get_feature_importance()
+print(importance)
+```
+
+Simple interpretation:
+
+```text
+High importance  -> model used this feature strongly
+Low importance   -> model used this feature weakly
+```
+
+Important warning:
+
+```text
+Feature importance does not always mean causal importance.
+It means the model found the feature useful for prediction.
+```
+
+---
+
+# 22. Common Mistakes
+
+| Mistake | Why it is a problem | Fix |
+|---|---|---|
+| Not marking categorical columns | CatBoost treats them incorrectly | Use `cat_features` |
+| Too many iterations | Overfitting | Use validation and early stopping |
+| Ignoring class imbalance | Poor minority-class recall | Use class weights or better metrics |
+| Using only accuracy | Misleading on imbalanced data | Use F1, ROC-AUC, PR-AUC |
+| Comparing without validation | Unreliable result | Use train/validation split |
+
+---
+
+# 23. Early Stopping
+
+Early stopping stops training when validation performance stops improving.
+
+```python
+model = CatBoostClassifier(
+    iterations=1000,
+    learning_rate=0.03,
+    depth=6,
+    verbose=100,
+    random_seed=42
+)
+
+model.fit(
+    X_train,
+    y_train,
+    cat_features=cat_features,
+    eval_set=(X_valid, y_valid),
+    early_stopping_rounds=50
+)
+```
+
+Flow:
+
+```text
+Train one more tree
+      |
+Check validation score
+      |
+If no improvement for many rounds
+      |
+Stop training
+```
+
+---
+
+# 24. Practical Tuning Order
+
+```text
+1. Start with default CatBoost
+2. Set correct cat_features
+3. Add validation set
+4. Tune iterations + learning_rate
+5. Tune depth
+6. Tune l2_leaf_reg
+7. Use early stopping
+8. Check feature importance
+```
+
+Good beginner configuration:
+
+```python
+model = CatBoostClassifier(
+    iterations=1000,
+    learning_rate=0.03,
+    depth=6,
+    l2_leaf_reg=3,
+    loss_function="Logloss",
+    eval_metric="AUC",
+    verbose=100,
+    random_seed=42
+)
+```
