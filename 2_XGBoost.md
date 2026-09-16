@@ -1,4 +1,4 @@
-# XGBoost — Complete Beginner-Friendly Guide
+# XGBoost
 
 ## 1. What is XGBoost?
 
