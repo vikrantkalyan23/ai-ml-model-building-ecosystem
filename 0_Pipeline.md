@@ -84,4 +84,4 @@
                               │ Drift / Performance │
                               └─────────────────────┘
 ```
-That is the general ML pipeline. Not every project needs every stage, but this architecture covers most ML projects.
+This is the general ML pipeline. Not every project needs every stage, but this architecture covers most ML projects.
